@@ -26,7 +26,7 @@ class Config:
     """
 
     # ========== MySQL 数据库配置 ==========
-    MYSQL_HOST: str = os.getenv("MYSQL_HOST", "192.168.3.12")
+    MYSQL_HOST: str = os.getenv("MYSQL_HOST", "localhost")
     MYSQL_PORT: int = int(os.getenv("MYSQL_PORT", "3306"))
     MYSQL_USER: str = os.getenv("MYSQL_USER", "root")
     MYSQL_PASSWORD: str = os.getenv("MYSQL_PASSWORD", "")
@@ -35,7 +35,7 @@ class Config:
     # ========== LLM 大模型配置 ==========
     OPENAI_API_BASE: str = os.getenv("OPENAI_API_BASE", "https://api.deepseek.com")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-    LLM_MODEL: str = os.getenv("LLM_MODEL", "deepseek-chat")
+    LLM_MODEL: str = os.getenv("LLM_MODEL", "deepseek-flash")
     LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.1"))
 
     # ========== Agent 智能体配置 ==========

@@ -124,7 +124,7 @@ tools_schema = [
                 "properties": {
                     "command": {
                         "type": "string",
-                        "description": "完整的 mysqldump 命令，例如：mysqldump -h192.168.3.12 -P3306 -uroot -p123456 dbname tablename > backup.sql",
+                        "description": "完整的 mysqldump 命令，例如：mysqldump -hHOST -PPORT -uUSER -pPASSWORD dbname tablename > backup.sql",
                     },
                 },
                 "required": ["command"],
@@ -165,7 +165,7 @@ def _confirm_operation(title: str, sql_or_cmd: str) -> bool:
     from app.config import config
 
     print(f"\n{'='*60}")
-    print(f"⚠️  高危操作确认：{title}")
+    print(f"[!] 高危操作确认：{title}")
     print(f"{'='*60}")
     print(f"目标数据库：{config.mysql_display}")
     print(f"操作内容：")

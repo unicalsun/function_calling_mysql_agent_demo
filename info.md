@@ -118,6 +118,66 @@ main.py
 
 ---
 
+# 改造完成：Tool → LangGraph → LLM 分层错误处理链路
+
+## 新增文件
+
+┌───────────────────┬─────────────────────────────────────────────────────────────────────────────────────┐
+│       文件        │                                        职责                                         │
+├───────────────────┼─────────────────────────────────────────────────────────────────────────────────────┤
+│ app/validators.py │ 校验层：参数完整性 + SQL 安全检测 + 返回格式验证                                    │
+├───────────────────┼─────────────────────────────────────────────────────────────────────────────────────┤
+│ app/tool_error.py │ 错误类型层：ToolError 异常类 + ErrorStrategy 枚举（RETRY/FALLBACK/HITL/SAFE_END）   │
+├───────────────────┼─────────────────────────────────────────────────────────────────────────────────────┤
+│ app/adapters.py   │ 适配器层：ToolAdapter 包装原始工具，执行前校验 + 执行后简单修复，失败封装 ToolError │
+├───────────────────┼─────────────────────────────────────────────────────────────────────────────────────┤
+│ app/graph.py      │ 图定义层：AgentState + 4 个节点 + 2 条条件路由边                                    │
+└───────────────────┴─────────────────────────────────────────────────────────────────────────────────────┘
+
+## 核心设计
+
+```
+用户输入
+  ↓
+llm_node ──────────────────────────────────────────────┐
+  ↓                                                    │
+tool_node (ToolAdapter.execute)                        │
+  ├─ 参数校验 → 失败 → ToolError(FALLBACK) ────────────┤
+  ├─ SQL 安全检测 → 高危 → 确认 → 执行 ────────────────┤
+  ├─ 执行工具 → 成功 → ToolMessage ────────────────────┤
+  └─ 执行工具 → 失败 → ToolError(RETRY/HITL/SAFE_END) ┤
+  ↓                                                    │
+route_after_tool (条件路由)                             │
+  ├─ 无错误 → llm ─────────────────────────────────────┘
+  ├─ RETRY → llm (retry_count++)
+  ├─ FALLBACK/HITL → handle_error_node
+  └─ SAFE_END → END
+  ↓
+handle_error_node
+  ├─ RETRY → HumanMessage(错误信息) → llm
+  ├─ FALLBACK → HumanMessage(备用方案提示) → llm
+  ├─ HITL → HumanMessage(人工介入提示) → llm
+  └─ SAFE_END → HumanMessage(终止提示) → END
+
+  ```
+
+## 测试结果
+
+✓ graph.py 语法正确，图编译成功：['__start__', 'llm', 'tool', 'handle_error']
+✓ validators.py: DROP TABLE 正确被拦截，SELECT 通过
+✓ tool_error.py: ToolError 工厂方法正常工作
+✓ adapters.py: 缺少参数 → FALLBACK，空 SQL → ToolError
+
+## 改动文件
+
+- app/prompts.py — 新增「错误处理原则」章节
+- app/main.py — 改用 app.graph.compile_graph() + app.invoke()
+- app/requirements.txt — 新增 langgraph>=0.2.0 和 langchain-core>=0.3.0
+- app/tools.py — 移除 emoji 避免 Windows GBK 编码错误
+- agents.md — 更新架构说明和分层设计文档
+
+---
+
 
 
 
