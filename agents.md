@@ -1,5 +1,24 @@
 # MySQL Database Analysis Agent (LangGraph + 分层错误处理)
 
+
+---
+
+
+
+## 重要约定
+- 遵守 mnemo （C:\Users\veleven\AppData\Roaming\mnemo）的长期记忆中的内容， 使用mnemo 的search方法查看
+- mnemo中的内容，修改必须向用户确认，不能自己增删改。
+- 如果提到直接“只解读”， 那就是只读且不做任何的修改和新增。
+
+
+
+## 禁止事项
+- 每次优化和修改bug，如果发现新bug且与本次修复无关的bug，优先询问我，不要自己执行。
+- 生产环境的 .env 文件不要碰
+
+---
+
+
 ## 项目概述
 
 > 学习重点：本项目是 OpenAI Function Calling + LangGraph 在实际生产场景中的完整应用，
